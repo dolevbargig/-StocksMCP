@@ -1,0 +1,20 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "finnhub-api-key",
+      "description": "Finnhub API key",
+      "password": true
+    }
+  ],
+  "servers": {
+    "stocks-research": {
+      "type": "stdio",
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": ["${workspaceFolder}/mcp_server.py"],
+      "env": {
+        "FINNHUB_API_KEY": "${input:finnhub-api-key}"
+      }
+    }
+  }
+}

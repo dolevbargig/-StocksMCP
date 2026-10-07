@@ -1,0 +1,7 @@
+.DS_Store
+.env
+.venv/
+.llms/
+PROJECT_HANDOFF.md
+__pycache__/
+*.py[cod]

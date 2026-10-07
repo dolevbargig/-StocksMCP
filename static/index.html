@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Grounded US stock research using Azure OpenAI, MCP, and Finnhub."
+    />
+    <title>Market Thread | MCP Stock Research</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#message-input">Skip to message input</a>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <span class="brand-mark" aria-hidden="true">MT</span>
+          <div>
+            <p class="eyebrow">MCP research desk</p>
+            <h1>Market Thread</h1>
+          </div>
+        </div>
+        <div class="system-state" id="system-state" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="status-label">Checking services</span>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="research-rail" aria-label="Research workflow">
+          <p class="eyebrow">Evidence path</p>
+          <ol class="flow-list">
+            <li><span>01</span> Resolve the ticker</li>
+            <li><span>02</span> Retrieve market facts</li>
+            <li><span>03</span> Synthesize with sources</li>
+          </ol>
+          <div class="rail-note">
+            <strong>No invented figures.</strong>
+            <p>Current market facts come only from Finnhub tool results.</p>
+          </div>
+          <p class="disclaimer">
+            Research information only. Not personalized investment advice.
+          </p>
+        </aside>
+
+        <section class="chat-panel" aria-label="Stock research chat">
+          <div class="conversation" id="conversation" aria-live="polite">
+            <div class="welcome" id="welcome">
+              <p class="eyebrow">Start with a company</p>
+              <h2>Ask a question that needs evidence.</h2>
+              <p>
+                I can resolve company names, compare the latest quote with the
+                previous close, summarize fundamentals, and review recent news.
+              </p>
+              <div class="prompt-list" aria-label="Example questions">
+                <button
+                  class="prompt-chip"
+                  type="button"
+                  data-prompt="Research Nvidia for me. Include its latest quote, company profile, and important news from the last 7 days."
+                >
+                  Research Nvidia
+                </button>
+                <button
+                  class="prompt-chip"
+                  type="button"
+                  data-prompt="What is Tesla's latest stock price and daily percentage change?"
+                >
+                  Check Tesla's price
+                </button>
+                <button
+                  class="prompt-chip"
+                  type="button"
+                  data-prompt="Find the ticker for a company called NotARealCompanyXYZ and explain if no match exists."
+                >
+                  Try an edge case
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="error-banner" id="error-banner" role="alert" hidden></div>
+
+          <form class="composer" id="chat-form">
+            <label for="message-input">Your research question</label>
+            <div class="composer-row">
+              <textarea
+                id="message-input"
+                name="message"
+                rows="2"
+                maxlength="4000"
+                placeholder="Ask about a US-listed company..."
+                required
+              ></textarea>
+              <button class="send-button" id="send-button" type="submit">
+                <span class="send-label">Send</span>
+                <span class="send-arrow" aria-hidden="true">&#8599;</span>
+              </button>
+            </div>
+            <div class="composer-meta">
+              <span id="loading-label" aria-live="polite"></span>
+              <span><kbd>Enter</kbd> send &middot; <kbd>Shift</kbd> + <kbd>Enter</kbd> new line</span>
+            </div>
+          </form>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
