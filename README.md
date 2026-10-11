@@ -23,7 +23,7 @@ The application is intentionally small enough to explain end to end. The browser
 
 **First example request:** `Research Nvidia for me. Include its latest quote, company profile, and important news from the last 7 days.`
 
-**Chat path and status:** UI and Telegram webhook; Building. The application and mocked end-to-end tests are complete; live Azure/Finnhub/Telegram validation waits for rotated development credentials and BotFather setup.
+**Chat path and status:** UI and Telegram webhook; Done. Live Azure/Finnhub research and all three Telegram demonstrations were verified on October 11, 2026. See the live validation record below.
 
 ## Request Flow
 
@@ -325,6 +325,33 @@ cd /Users/bargigdolev/StocksMCP
 ```
 
 ngrok URLs usually change when restarted. Update `TELEGRAM_PUBLIC_URL`, restart Uvicorn, and run `set` again whenever the public URL changes.
+
+## Live Validation Record — October 11, 2026
+
+The existing implementation was reused without rebuilding components. Validation followed `GO_LIVE_GUIDE.md` in order, using the existing Python 3.14.6 virtual environment (3.12 remains the recommended version).
+
+| Check | Observed result |
+| --- | --- |
+| Environment and automated checks | Dependencies installed; compilation succeeded; all 48 tests passed; `pip check` reported no broken requirements. |
+| Configuration | Required provider and Telegram settings and chat allowlist present; local `.env` restricted to mode `600` and excluded from Git. |
+| Local browser backend | Used the guide's HTTP alternative, `POST /api/chat`, with “What is Nvidia latest stock price and daily percentage change?” The live response resolved NVDA and returned $229.28 and -0.52%; its trace showed successful `search_symbol` and `get_stock_quote` calls. These are observed demo values, not current-price guarantees. |
+| Health and runtime | `/api/health` reported `ready`, all three providers configured, and `gpt-4.1`. Uvicorn ran with one worker. |
+| Tunnel and webhook | ngrok exposed port 8000 over HTTPS; the local public URL matched the tunnel; Uvicorn was restarted; the helper registered the webhook with its secret. Final webhook info showed zero pending updates and no last error. |
+| Successful Telegram request | Sent “Research Nvidia. Include its latest quote, company profile, and important news from the last 7 days.” The user supplied the delivered bot reply: NVDA quote, company profile, linked recent news, and a research-only disclaimer. Uvicorn recorded a successful webhook request. |
+| Follow-up Telegram request | In the same conversation, sent “Which of those news items is most relevant to the company's core business?” The delivered reply referred to a specific article and link from the preceding answer, demonstrating retained conversation context. |
+| Graceful-error Telegram request | Sent “Find the ticker and current price for NotARealCompanyXYZ.” The delivered Hebrew reply reported no matching symbol in Finnhub and requested a real company name or ticker; it invented neither ticker nor price. |
+
+Telegram replies were verified from the user's pasted conversation replies. The local HTTP response exposed the tool trace; individual tool traces for Telegram turns were not captured. No credentials, private chat IDs, or raw webhook payloads are recorded here.
+
+### Explaining the Telegram request flow
+
+1. Telegram delivers a message to the public ngrok HTTPS webhook; ngrok forwards it to local FastAPI.
+2. FastAPI verifies the webhook secret before parsing JSON. TelegramService checks the chat allowlist and duplicate update ID, then supplies bounded completed chat history.
+3. ChatService discovers MCP tool schemas through the official stdio client and sends the conversation and instructions to Azure GPT-4.1.
+4. Azure selects tools and arguments. ChatService executes those calls through MCP stdio; the MCP server calls Finnhub and returns structured results to Azure.
+5. Azure produces the answer. TelegramService splits long answers, sends the chunks in order through Telegram, and retains the completed turn for follow-ups.
+
+The backend and tunnel must remain running for the live bot. Before stopping them, delete the webhook using the helper so Telegram is not left pointing at an inactive tunnel. A changed tunnel URL requires updating local configuration, restarting Uvicorn, and registering the webhook again.
 
 ## Telegram Demo Limitations
 
